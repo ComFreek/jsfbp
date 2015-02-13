@@ -1,17 +1,49 @@
 'use strict';
 
+/**
+  * @module jsfbp/InputPort
+  */
+
 var IP = require('./IP')
   , Fiber = require('fibers')
   , ProcessStatus = require('./Process').Status
   , Utils = require('./utils');
 
+/**
+  * InputPort
+  * @constructor
+  * @param {array} queue - Process queue dependency
+  */
 var InputPort = module.exports = function(queue){
+  /**
+    * The port name
+    * @member {string}
+    * @default
+    **/
   this.name = null;
+  /**
+    * The connection
+    * @member {Connection}
+    * @default
+    */
   this.conn = null;
+  /**
+    * @member {boolean}
+    * @default
+    */
   this.closed = false;
+  /**
+    * Queue passed to the constructor
+    * @member {array}
+    * @deprecated
+    */
 	this.queue = queue;
 };
 
+/**
+  * Opens a new input port
+  * @param {string} name - The name of the port
+  */
 InputPort.openInputPort = function(name) {
   var proc = Fiber.current.fbpProc;
   var namex = proc.name + '.' + name;  
@@ -78,6 +110,7 @@ InputPort.prototype.receive = function(){
   proc.ownedIPs++; 
   return ip; 
 };
+
 
 InputPort.prototype.close = function(){
   var proc = Fiber.current.fbpProc; 
