@@ -19,3 +19,8 @@ old-node/
 start-old-node.bat
 start-old-node-ps.bat
 start-old-node.ps1
+
+# The Promise/Stream implementation either require iojs to be used or Node.js to be called with the --harmony flag
+# The former is more comfortable and we therefore use a helper file and store iojs in a directory
+iojs
+start-iojs-ps.bat
