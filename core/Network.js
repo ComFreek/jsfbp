@@ -1,3 +1,5 @@
+'use strict';
+
 var IIPConnection = require('./IIPConnection')
   , InputPort = require('./InputPort')
   , OutputPort = require('./OutputPort')
@@ -33,7 +35,7 @@ Network.prototype.defProc = function(func, name) {
 Network.prototype.initialize = function(proc, port, string) {
   var inport = new InputPort();
   inport.name = proc.name + "." + port;
-  inport.conn = new IIPConnection(string);
+  inport.setConnection(new IIPConnection(string));
   proc.inports[proc.inports.length] = [proc.name + '.' + port, inport];
 };
 
@@ -68,7 +70,7 @@ Network.prototype.connect = function(upproc, upport, downproc, downport, capacit
 
     var cnxt = new ProcessConnection(capacity);
     cnxt.name = downproc.name + "." + downport;
-    inport.conn = cnxt;
+    inport.setConnection(cnxt);
 
   } else {
     inport = inportf;

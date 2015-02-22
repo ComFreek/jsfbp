@@ -2,5 +2,5 @@
 
 module.exports = {
   Network: require('./core/Network'),
-  FiberRuntime: require('./core/runtimes/FiberRuntime')
+  PromiseStreamRuntime: require('./core/runtimes/PromiseStreamRuntime')
 };

@@ -1,17 +1,13 @@
 'use strict';
 
 var InputPort = require('../core/InputPort')
-  , IP = require('../core/IP');
+  , IP = require('../core/IP')
+  , Promise = require('bluebird');
 
-module.exports = function recvr() {
+module.exports = Promise.coroutine(function *() {
   var inport = InputPort.openInputPort('IN');
-  while (true) {
-    var ip = inport.receive();
-    if (ip === null) {
-      break;
-    }
-    var data = ip.contents;
-    console.log('data: ' + data);
-    IP.drop(ip);
-  }
-};
+  
+  var ip = yield inport.receive();
+  IP.drop(ip);
+  console.log('RECVR DATA: ' + ip.contents);
+});

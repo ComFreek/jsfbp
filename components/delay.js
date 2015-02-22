@@ -1,36 +1,27 @@
 'use strict';
 
-var InputPort = require('../core/InputPort')
-  , OutputPort = require('../core/OutputPort')
-  , Fiber = require('fibers')
-  , IP = require('../core/IP');
+var Promise = require('bluebird');
 
-module.exports = function delay(runtime) {
-  var proc = runtime.getCurrentProc();
-  var inport = InputPort.openInputPort('IN');
-  var intvlport = InputPort.openInputPort('INTVL');
-  var outport = OutputPort.openOutputPort('OUT');
-  var intvl_ip = intvlport.receive();
-  var intvl = intvl_ip.contents;
-  IP.drop(intvl_ip);
-
-  while (true) {
-    var ip = inport.receive();
-    if (ip === null) {
-      break;
-    }
-    runtime.setCallbackPending(true);
-    sleep(runtime, proc, intvl);
-    runtime.setCallbackPending(false);
-    outport.send(ip);
+module.exports = Promise.coroutine(function *delay(proc) {
+  var inport = proc.openInputPort('IN');
+  var intvlport = proc.openInputPort('INTVL');
+  var outport = proc.openOutputPort('OUT');
+  
+  var intervalIP = yield intvlport.receive();
+  var interval = parseInt(intervalIP.contents);
+  
+  var delays = [];  
+  var ip;
+  while ((ip = yield inport.receive()) !== null) {
+    // wrap ip in a function call, so its reference won't be set to the last one
+    // set to ip
+    (function (_ip) {
+      delays.push(Promise.delay(interval).then(function () {
+        outport.send(_ip);
+      }));
+    })(ip);
   }
-} 
-
-function sleep(runtime, proc, ms) {
-  console.log(proc.name + ' start sleep: ' + Math.round(ms * 100) / 100 + ' msecs');  
-    var fiber = Fiber.current;
-    setTimeout(function() {
-        runtime.queueCallback(proc);
-    }, ms);
-    return Fiber.yield();
-}
+  Promise.all(delays).then(function () {
+    outport.end();
+  });
+});

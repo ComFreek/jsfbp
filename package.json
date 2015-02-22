@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/jpaulm/jsfbp",
   "dependencies": {
+    "bluebird": "^2.9.12",
     "fibers": "^1.0.5"
   },
   "main": "index.js",

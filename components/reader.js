@@ -4,41 +4,32 @@ var Fiber = require('fibers')
   , fs = require('fs')
   , InputPort = require('../core/InputPort')
   , IP = require('../core/IP')
-	, OutputPort = require('../core/OutputPort');
+	, OutputPort = require('../core/OutputPort'),
+  , Promise = require('bluebird');
 
 // Reader based on Bruno Jouhier's code
-module.exports = function reader(runtime) {
-  var proc = runtime.getCurrentProc();
-  var inport = InputPort.openInputPort('FILE');
-  var ip = inport.receive();
-  var fname = ip.contents;
-  IP.drop(ip);
-  runtime.setCallbackPending(true);
-
-  var result = myReadFile(runtime, fname, "utf8", proc);
-  console.log('read complete: ' + proc.name);
-
-  runtime.setCallbackPending(false);
-  if (result[0] == undefined) {
-     console.log(result[1]);
-     return;  
+module.exports = Promise.coroutine(function *(proc) {
+  var inport = proc.openInputPort('FILE');
+  
+  var ip, promises = [];
+  
+  while ((ip = yield inport.receive()) !== null) {
+    var filename = ip.contents;
+    proc.dropIP(ip);
+    
+    readFile(filename, "utf8").then(function (fileContents) {
+      var fileContentsIP = proc.createIP(fileContents);
+      outport.send(fileContentsIP);
+    });
   }
-
-  var outport = OutputPort.openOutputPort('OUT');
-  var array = result[0].split('\n');
-  //console.log(array);
-  for (var i = 0; i < array.length; i++) {
-    var ip = IP.create(array[i]);
-    outport.send(ip);
-  }
+  
+  Promise.all(promises).then(function () {
+    outport.end();
+  });
 };
 
-function myReadFile(runtime, path, options, proc) {
-  console.log('read started: ' + proc.name);
-  fs.readFile(path, options, function(err, data) {
-    console.log('running callback for: ' + proc.name);
-    runtime.queueCallback(proc, [data, err]);
+function readFile(filename, encoding) {
+  return Promise.fromNode(function(callback) {
+    fs.readFile(filename, encoding, callback);
   });
-  console.log('read pending: ' + proc.name);
-  return Fiber.yield();
 }

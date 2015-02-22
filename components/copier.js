@@ -1,17 +1,14 @@
 'use strict';
 
-var InputPort = require('../core/InputPort')
-  , OutputPort = require('../core/OutputPort');
+var Promise = require('bluebird');
 
-module.exports = function copier() {
-  var inport = InputPort.openInputPort('IN');
-  var outport = OutputPort.openOutputPort('OUT');
-  while (true) {
-    var ip = inport.receive();
-    if (ip === null) {
-      break;
-    }
-    var i = ip.contents;
+module.exports = Promise.coroutine(function *(proc) {
+  var inport = proc.openInputPort('IN');
+  var outport = proc.openOutputPort('OUT');
+  
+  var ip;
+  while ((ip = yield inport.receive()) !== null) {
     outport.send(ip);
   }
-};
+  outport.end();
+});

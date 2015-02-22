@@ -1,71 +1,38 @@
 'use strict';
-var Fiber = require('fibers')
-  , ProcessStatus = require('./Process').Status;
+var ProcessStatus = require('./Process').Status
+  , util = require('util')
+  , Writable = require('stream').Writable;
 
-var OutputPort = module.exports = function(){
+var OutputPort = module.exports = function(array){
+  Writable.call(this, {objectMode: true});
   this.name = null;
   this.conn = null;  
   this.closed = false;
+  this.array = [];
+  var self = this;
+  this.on('finish', function () {
+    console.log("Output Port ended!!!");
+    self.conn.end();
+  });
 };
 
-OutputPort.openOutputPort = function(name) {
-  var proc = Fiber.current.fbpProc; 
-  var namex = proc.name + '.' + name;
-  for (var i = 0; i < proc.outports.length; i++) {
-    if (proc.outports[i][0] == namex) {
-      return proc.outports[i][1];  // return conn
-    }
+util.inherits(OutputPort, Writable);
+
+OutputPort.prototype._write = function(chunk, encoding, callback) {
+  // TODO should be pass callback forth to conn.write()?
+  
+  // The encoding could theoretically be ignored because we are in objectMode
+  this.conn.write(chunk, encoding);
+  callback();
+};
+
+OutputPort.prototype.send = function(ip) {
+  if (ip !== null) {
+    console.log("Pushed " + ip.contents + " through OutputPort");
   }
-  console.log('Port ' + proc.name + '.' + name + ' not found');
-  return null;
+  this.write(ip);
 };
 
 OutputPort.prototype.setRuntime = function(runtime) {
   this._runtime = runtime;
-};
-
-OutputPort.prototype.send = function(ip){
-  var proc = Fiber.current.fbpProc;
-  var conn = this.conn;
-    
-  if (tracing) {
-    console.log(proc.name + ' send to ' + this.name + ': ' + ip.contents);
-  }
-  if (ip.owner != proc) {
-    console.log(proc.name + ' IP being sent not owned by this Process: ' + ip.contents); 
-    return;
-  }  
-  if (conn.closed) {
-    console.log(proc.name + ' sending to closed connection: ' + conn.name);
-    return -1;
-  }
-  while (true) {    
-    if (conn.down.status == ProcessStatus.WAITING_TO_RECEIVE ||
-        conn.down.status == ProcessStatus.NOT_INITIALIZED ||
-        conn.down.status == ProcessStatus.DORMANT) {
-      conn.down.status = ProcessStatus.READY_TO_EXECUTE; 
-      this._runtime.pushToQueue(conn.down);
-    }
-    if (conn.usedslots == conn.array.length) { 
-      proc.status = ProcessStatus.WAITING_TO_SEND;
-      proc.yielded = true;
-      Fiber.yield(); 
-      proc.status = ProcessStatus.ACTIVE; 
-      proc.yielded = false;    
-    }
-    else {
-      break;
-    }
-  }
-  conn.array[conn.nxtput] = ip; 
-  conn.nxtput ++;
-  if (conn.nxtput > conn.array.length - 1) {
-   conn.nxtput = 0;
-  }
-  conn.usedslots++;
-  proc.ownedIPs--;
-  if (tracing) {
-    console.log(proc.name + ' send OK');  
-  }
-  return 0;
 };
