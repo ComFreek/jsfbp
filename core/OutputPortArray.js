@@ -21,7 +21,7 @@ OutputPortArray.openOutputPortArray = function(name) {
     }    
   }
   if (hi_index == -1){
-    console.log('Port ' + proc.name + '.' + name + ' not found');
+    //console.log('Port ' + proc.name + '.' + name + ' not found');
     return null; 
   }
   

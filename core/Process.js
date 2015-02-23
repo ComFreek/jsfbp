@@ -39,7 +39,7 @@ Process.prototype.openInputPort = function (name) {
       return this.inports[i][1];
     }
   }
-  console.log('Port ' + this.name + '.' + name + ' not found');
+  //console.log('Port ' + this.name + '.' + name + ' not found');
   return null;
 };
 
@@ -61,7 +61,7 @@ Process.prototype.openOutputPort = function(name) {
       return this.outports[i][1];  // return conn
     }
   }
-  console.log('Port ' + this.name + '.' + name + ' not found');
+  //console.log('Port ' + this.name + '.' + name + ' not found');
   return null;
 };
 

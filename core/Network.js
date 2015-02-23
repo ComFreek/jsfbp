@@ -47,7 +47,7 @@ Network.prototype.connect = function(upproc, upport, downproc, downport, capacit
   for (var i = 0; i < upproc.outports.length; i++) {
     outport = upproc.outports[i][1];
     if (outport.name == upproc.name + "." + upport) {
-      console.log('Cannot connect one output port (' + outport.name + ') to multiple input ports');
+      //console.log('Cannot connect one output port (' + outport.name + ') to multiple input ports');
       return;
     }
   }

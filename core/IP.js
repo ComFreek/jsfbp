@@ -19,7 +19,7 @@ IP.createBracket = function(bktType, x) {
   ip.type = bktType;     
   var proc = Fiber.current.fbpProc;
   if (tracing) {
-    console.log(proc.name + ' Create bracket with ' + bktType + ', ' + x);
+    //console.log(proc.name + ' Create bracket with ' + bktType + ', ' + x);
   }
   proc.ownedIPs++;
   ip.owner = proc;   

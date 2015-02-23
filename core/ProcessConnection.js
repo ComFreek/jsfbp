@@ -23,7 +23,7 @@ var ProcessConnection = module.exports = function(size) {
   
   var self = this;
   this.on('finish', function () {
-    console.log("Ended ProcessConnection");
+    //console.log("Ended ProcessConnection");
     // End InputPort
     self.push(null);
   });
@@ -34,7 +34,7 @@ util.inherits(ProcessConnection, Duplex);
 ProcessConnection.prototype._write = function(chunk, encoding, callback) {
   this.push(chunk, encoding);
   if (chunk !== null) {
-    console.log("Pushed " + chunk.contents + " through ProcessConnection");
+    //console.log("Pushed " + chunk.contents + " through ProcessConnection");
   }
   callback();
 };

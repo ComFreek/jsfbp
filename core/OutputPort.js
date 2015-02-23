@@ -11,7 +11,7 @@ var OutputPort = module.exports = function(array){
   this.array = [];
   var self = this;
   this.on('finish', function () {
-    console.log("Output Port ended!!!");
+    //console.log("Output Port ended!!!");
     self.conn.end();
   });
 };
@@ -28,7 +28,7 @@ OutputPort.prototype._write = function(chunk, encoding, callback) {
 
 OutputPort.prototype.send = function(ip) {
   if (ip !== null) {
-    console.log("Pushed " + ip.contents + " through OutputPort");
+    //console.log("Pushed " + ip.contents + " through OutputPort");
   }
   this.write(ip);
 };

@@ -27,16 +27,32 @@ InputPort.prototype.setConnection = function (conn) {
   });
   this.conn.on('end', function () {
     self.ended = true;
-    console.log("Connection ended, therefore ending InputPort as well");
+    //console.log("Connection ended, therefore ending InputPort as well");
     // Trigger end of InputPort's readable stream
     self.push(null);
+  });
+  
+  // Introduce instance-wide listeners (instead of 'once' listeners in _read) to overcome
+  // the problem of too many of those 'once' listeners.
+  // It seems that they get periodically removed, but not fast enough if 
+  // there are no console.log() calls to "create pauses". This results in an error message
+  // from Streams saying that there might be a memory leak.
+  this.emptyListener = function () {};
+  
+  this.endListener = this.emptyListener;
+  this.on('end', function () {
+    self.endListener();
+  });
+  this.readableListener = this.emptyListener;
+  this.on('readable', function () {
+    self.readableListener();
   });
 };
 
 InputPort.prototype._read = function() {
   var ip = this.conn.read();
   if (ip !== null) {
-    console.log("InputPort read from connection ", ip);
+    //console.log("InputPort read from connection ", ip);
     this.push(ip);
   }
 };
@@ -44,6 +60,7 @@ InputPort.prototype._read = function() {
 InputPort.prototype.receive = function() {
   var self = this;
   var data = this.read();
+  //self.emitter.setMaxListener(100);
 
   // Directly resolve if data was instantly available
   if (data !== null) {
@@ -57,15 +74,17 @@ InputPort.prototype.receive = function() {
   // Data could possibly exist, but isn't there yet
   else {
     return new Promise(function (resolve, reject) {
-      self.once('readable', function () {
-        console.log("Data now readable at InputPort");
+      self.readableListener = function () {
+        self.readableListener = self.emptyListener;
+        //console.log("Data now readable at InputPort");
         var ip = self.read();
-        console.log("That data was:", ip);
+        //console.log("That data was:", ip);
         resolve(ip);
-      });
-      self.once('end', function () {
+      };
+      self.endListener = function () {
+        self.endListener = self.emptyListener;
         resolve(null);
-      });
+      };
     });
   }
 };

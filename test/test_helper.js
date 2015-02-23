@@ -16,7 +16,8 @@ global.MockSender = function(inputArray) {
       outport.send(proc.createIP(item));
     });
     outport.end();
-    console.log("MockSender ended");
+    //console.log("MockSender ended");
+    yield Promise.resolve(null);
   });
 }
 
@@ -30,7 +31,7 @@ global.MockReceiver = function(outputArray, receiveCallback) {
     }
     
     while ((ip = yield inport.receive()) !== null) {
-      console.log("Received at MockReceiver");
+      //console.log("Received at MockReceiver");
       outputArray.push(ip.contents);
       receiveCallback(ip);
       proc.dropIP(ip);
