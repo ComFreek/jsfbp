@@ -54,6 +54,29 @@ Process.prototype.getIIPContents = function (name) {
   });
 };
 
+Process.openInputPortArray = function(name) {
+  var namey = this.name + '.' + name;
+  var hi_index = -1;  
+  var array = [];
+
+  var re = new RegExp(namey + '\\[(\\d+)\\]');  
+
+  for (var i = 0; i < this.inports.length; i++) {   
+    var namex = re.exec(this.inports[i][0]);   
+
+    if (namex != null && namex.index == 0) {
+        hi_index = Math.max(hi_index, namex[1]);
+        array[namex[1]] = this.inports[i][1];
+    }
+  }
+  if (hi_index == -1) {
+    console.log('Port ' + this.name + '.' + name + ' not found');
+    return null; 
+  }
+  
+  return array; 
+};
+
 Process.prototype.openOutputPort = function(name) {
   var namex = this.name + '.' + name;
   for (var i = 0; i < this.outports.length; i++) {
