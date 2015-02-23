@@ -19,14 +19,12 @@
   },
   "homepage": "https://github.com/jpaulm/jsfbp",
   "dependencies": {
-    "bluebird": "^2.9.12",
-    "fibers": "^1.0.5"
+    "bluebird": "^2.9.12"
   },
   "main": "index.js",
   "devDependencies": {
     "chai": "^2.0.0",
     "mocha": "^2.1.0",
-    "mocha-fibers": "^1.1.0",
     "traceur": "0.0.85",
     "ws": "^0.7.1"
   },
@@ -36,6 +34,6 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --ui mocha-fibers --recursive -R spec --require test/test_helper.js"
+    "test": "mocha --recursive -R spec --require test/test_helper.js"
   }
 }
