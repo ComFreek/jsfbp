@@ -18,9 +18,9 @@ describe('collate', function() {
     network.connect(sender1, 'OUT', collate, 'IN[1]', 5);
     network.connect(collate, 'OUT', receiver, 'IN');
 
-    var fiberRuntime = new fbp.FiberRuntime();
-    network.run(fiberRuntime, { trace: false });
-
-    expect(result).to.deep.equal(['1,m1', '1,d11', '1,d12', '2,m2', '2,d21', '3,m3', '3,d31', '3,d32', '3,d33', '4,d41']);
+    var runtime = new fbp.PromiseStreamRuntime();
+    network.run(runtime, { trace: false }, function () {
+      expect(result).to.deep.equal(['1,m1', '1,d11', '1,d12', '2,m2', '2,d21', '3,m3', '3,d31', '3,d32', '3,d33', '4,d41']);
+    });
   });
 });

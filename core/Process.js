@@ -54,7 +54,7 @@ Process.prototype.getIIPContents = function (name) {
   });
 };
 
-Process.openInputPortArray = function(name) {
+Process.prototype.openInputPortArray = function(name) {
   var namey = this.name + '.' + name;
   var hi_index = -1;  
   var array = [];

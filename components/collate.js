@@ -1,29 +1,27 @@
 'use strict';
 
-var InputPort = require('../core/InputPort')
-  , InputPortArray = require('../core/InputPortArray')
-  , IP = require('../core/IP')
-  , OutputPort = require('../core/OutputPort');
+var Promise = require('bluebird');
 
-module.exports = function collate() {
-  var ctlfields = InputPort.openInputPort('CTLFIELDS');
-  var inportArray = InputPortArray.openInputPortArray('IN');
-  var outport = OutputPort.openOutputPort('OUT');
+module.exports = Promise.coroutine(function *(proc) {
+  var ctlfields = proc.openInputPort('CTLFIELDS');
+  var inportArray = proc.openInputPortArray('IN');
+  var outport = proc.openOutputPort('OUT');
 
-  var ctlfieldsP = ctlfields.receive();
-  IP.drop(ctlfieldsP);
+  var ctlfieldsP = yield ctlfields.receive();
+  proc.dropIP(ctlfieldsP);
 
   var fields = ctlfieldsP.contents.split(',').map(function(str) { return parseInt(str); });
   var totalFieldLength = fields.reduce(function(acc, n) { return acc + n; }, 0);
 
   var portCount = inportArray.length;
   var ips = [];
-  inportArray.forEach(function(port, index) {
-    ips[index] = port.receive();
+  
+  for (var index=0; index<inportArray.length; index++) {
+    ips[index] = yield inportArray[index].receive();
     if (ips[index] === null) {
       portCount--;
     }
-  });
+  }
 
   while (portCount) {
     var lowestIndex = 0;
@@ -40,9 +38,11 @@ module.exports = function collate() {
 
     outport.send(ips[lowestIndex]);
 
-    ips[lowestIndex] = inportArray[lowestIndex].receive();
+    ips[lowestIndex] = yield inportArray[lowestIndex].receive();
     if (ips[lowestIndex] === null) {
       portCount--;
     }
   }
-}
+  
+  outport.end();
+});
