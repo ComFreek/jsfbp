@@ -65,7 +65,8 @@ InputPort.prototype.receive = function(){
    for (var i = 0; i < conn.up.length; i ++) { 
     if (conn.up[i].status == ProcessStatus.WAITING_TO_SEND) {
     conn.up[i].status = ProcessStatus.READY_TO_EXECUTE; 
-    this._runtime.pushToQueue(conn.up[i]); 
+    this._runtime.pushToQueue(conn.up[i]);
+    console.log("Push [" + conn.up[i] + "] to queue because [" + proc.name + "] wanted to receive something");
     }  
    }
       
@@ -98,7 +99,9 @@ InputPort.prototype.close = function(){
     break;  
   }
   for (var i = 0; i < conn.up.length; i ++) { 
-    if (conn.up[i].status == ProcessStatus.WAITING_TO_SEND)
-    this._runtime.pushToQueue(conn.up[i]); 
+    if (conn.up[i].status == ProcessStatus.WAITING_TO_SEND) {
+      this._runtime.pushToQueue(conn.up[i]); 
+      console.log("Push [" + conn.up[i] + "] to queue because this component is closing");
+    }
    }
 };

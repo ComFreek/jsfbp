@@ -34,6 +34,7 @@ FiberRuntime.prototype._close = function(proc) {
         conn.down.status == Process.Status.NOT_INITIALIZED) {
       conn.down.status = Process.Status.READY_TO_EXECUTE;
       this._queue.push(conn.down);
+      console.log("Push [" + conn.down.name + "] to queue because [" + proc.name + "] shall be closed");
     }
     conn.upstreamProcsUnclosed--;
     if ((conn.upstreamProcsUnclosed) <= 0) {
@@ -49,6 +50,7 @@ FiberRuntime.prototype._close = function(proc) {
     for (var j = 0; j < conn.up.length; j++) {
       if (conn.up[j].status == Process.Status.CLOSED) {
         this._queue.push(conn.up[j]);
+        console.log("Push [" + conn.up[j].name + "] to queue because [" + proc.name + "] shall be closed");
       }
     }
   }
@@ -159,7 +161,9 @@ FiberRuntime.prototype._actualRun = function (trace) {
   this._queue = this._genInitialQueue();
   
   while (true) {
+    console.log(this._queue.map(function (proc) { return proc.name; }));
     this._tick();
+    console.log(this._queue.map(function (proc) { return proc.name; }));
 
     if (this._count <= 0) {
       break;
@@ -178,7 +182,8 @@ FiberRuntime.prototype._actualRun = function (trace) {
 
 FiberRuntime.prototype._tick = function () {
   var x = this._queue.shift();
-  while (x != undefined) {      
+  while (x != undefined) {
+    console.log(this._queue.map(function (proc) { return proc.name; }));
     if (x.fiber == null) {
       x = this._createFiber(x);
     }
@@ -197,6 +202,7 @@ FiberRuntime.prototype._tick = function () {
         else {
           x.status = Process.Status.DORMANT;
           this._queue.push(x);
+          console.log("Pushed [" + x.name + "] to queue because of tick() function in Runtime");
           for (var i = 0; i < x.inports.length; i++) {
             var inport = x.inports[i];
             if (inport[1].conn instanceof IIPConnection) {

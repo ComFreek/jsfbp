@@ -45,6 +45,7 @@ OutputPort.prototype.send = function(ip){
         conn.down.status == ProcessStatus.DORMANT) {
       conn.down.status = ProcessStatus.READY_TO_EXECUTE; 
       this._runtime.pushToQueue(conn.down);
+      console.log("Push [" + conn.down.name + "] to queue because [" + proc.name + "] sent something");
     }
     if (conn.usedslots == conn.array.length) { 
       proc.status = ProcessStatus.WAITING_TO_SEND;
