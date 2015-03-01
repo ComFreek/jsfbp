@@ -25,7 +25,7 @@ describe('delay', function() {
     
     var startTime = Date.now();
     
-    network.run(new fbp.FiberRuntime(), { trace: false }, function () {
+    network.run(new fbp.FiberRuntime(), { trace: true }, function () {
       expect(result).to.deep.equal([1,2,3]);
       var diffTime = Date.now() - startTime;
       expect(Math.abs(diffTime - TOTAL_DELAY)).to.be.below(DELAY_MAX_DIFF);
