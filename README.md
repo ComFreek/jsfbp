@@ -1,3 +1,18 @@
+How to use this fork
+=====
+
+Execute "npm install" and run the tests using "npm test".<br>
+Unfortunately, the current node.js implementation doesn't support generators (these special functions with an asterisk and yield statements in them) by default.<br>
+You could download io.js, rename its executable (iojs.exe --> node.js) and add its parent directory's path to the _beginning_ of the PATH on Windows, so that any program (here the call to "npm test" on the command line) would use the actual IOjs runtime instead of Node.<br>
+An alternative would be to manually run the test:
+
+```
+node.exe --harmony_generators node_modules/mocha/bin/mocha --recursive --require test/test_helper.js
+```
+
+I am currently using the first option as it doesn't require additional keystrokes other than "npm test".
+
+
 jsfbp
 =====
 
